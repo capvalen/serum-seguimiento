@@ -19,6 +19,12 @@ const fecha = computed(() => String(route.params.fecha))
 const cargando = ref(false)
 const reporte = ref<ReporteDia | null>(null)
 
+/** Día, mes y año de la fecha de la ruta (para preseleccionar el modal). */
+const partes = computed(() => {
+  const [y, m, d] = fecha.value.split('-').map(Number)
+  return { dia: d || 0, mes: m || 0, anio: y || 0 }
+})
+
 /** Registro seleccionado para editar/eliminar (null = modal cerrado). */
 const seleccion = ref<{ servicio: string; atendidos: number } | null>(null)
 
@@ -124,7 +130,12 @@ watch(fecha, cargar)
       </div>
     </div>
 
-    <AgregarAtencion @guardado="alGuardar" />
+    <AgregarAtencion
+      :dia-inicial="partes.dia"
+      :mes-inicial="partes.mes"
+      :anio-inicial="partes.anio"
+      @guardado="alGuardar"
+    />
 
     <EditarAtencion
       v-if="seleccion"

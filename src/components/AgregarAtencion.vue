@@ -6,6 +6,7 @@ import {
   IconCalendar,
   IconCalendarMonth,
   IconCalendarEvent,
+  IconCalendarCheck,
   IconStethoscope,
   IconUsers,
   IconDeviceFloppy,
@@ -19,8 +20,10 @@ const props = withDefaults(
     mesInicial?: number
     /** Año a preseleccionar al abrir. Por defecto, el año actual. */
     anioInicial?: number
+    /** Día a preseleccionar al abrir. Por defecto, el día de hoy. */
+    diaInicial?: number
   }>(),
-  { mesInicial: 0, anioInicial: 0 },
+  { mesInicial: 0, anioInicial: 0, diaInicial: 0 },
 )
 
 const emit = defineEmits<{ guardado: [fecha: string] }>()
@@ -126,19 +129,29 @@ function abrir() {
   })
 
   const d = new Date()
-  // Preselecciona el mes/año indicados; si no se pasan, usa el mes actual.
+  // Preselecciona la fecha indicada; si no se pasa, usa la fecha de hoy.
   const mesAbierto = props.mesInicial || d.getMonth() + 1
   const anioAbierto = props.anioInicial || d.getFullYear()
+  const maxDia = new Date(anioAbierto, mesAbierto, 0).getDate()
+  const diaAbierto =
+    props.diaInicial ||
+    (anioAbierto === d.getFullYear() && mesAbierto === d.getMonth() + 1
+      ? d.getDate()
+      : 1)
   anio.value = anioAbierto
   mes.value = mesAbierto
-  // Día: el de hoy si coincide con el mes/año mostrados; si no, el día 1.
-  const esMesActual =
-    anioAbierto === d.getFullYear() && mesAbierto === d.getMonth() + 1
-  const maxDia = new Date(anioAbierto, mesAbierto, 0).getDate()
-  dia.value = esMesActual ? Math.min(d.getDate(), maxDia) : 1
+  dia.value = Math.min(Math.max(diaAbierto, 1), maxDia)
   servicio.value = serviciosOrdenados.value[0]?.valor ?? ''
   atendidos.value = null
   abierto.value = true
+}
+
+/** Coloca la fecha del formulario en el día de hoy. */
+function irAHoy() {
+  const d = new Date()
+  anio.value = d.getFullYear()
+  mes.value = d.getMonth() + 1
+  dia.value = d.getDate()
 }
 
 function cerrar() {
@@ -146,6 +159,8 @@ function cerrar() {
 }
 
 async function guardar() {
+  // Evita doble ejecución (Enter + click, o doble Enter).
+  if (guardando.value) return
   if (!servicio.value || atendidos.value === null || atendidos.value < 0) return
 
   guardando.value = true
@@ -200,7 +215,7 @@ onMounted(() => {
   <!-- Modal -->
   <Transition name="modal">
     <div v-if="abierto" class="overlay" @click.self="cerrar">
-      <div class="modal med-card" role="dialog" aria-modal="true">
+      <form class="modal med-card" role="dialog" aria-modal="true" @submit.prevent="guardar">
         <header class="modal-head">
           <h2>Agregar atención</h2>
           <button type="button" class="cerrar" title="Cerrar" @click="cerrar">
@@ -227,12 +242,18 @@ onMounted(() => {
         </div>
 
         <div class="campo-dia">
-          <label class="campo-ancho">
-            <IconCalendarEvent :size="18" stroke-width="1.5" />
-            <select v-model.number="dia">
-              <option v-for="d in dias" :key="d" :value="d">{{ d }}</option>
-            </select>
-          </label>
+          <div class="campo-dia-fila">
+            <label class="campo-ancho">
+              <IconCalendarEvent :size="18" stroke-width="1.5" />
+              <select v-model.number="dia">
+                <option v-for="d in dias" :key="d" :value="d">{{ d }}</option>
+              </select>
+            </label>
+            <button type="button" class="btn-hoy" title="Usar la fecha de hoy" @click="irAHoy">
+              <IconCalendarCheck :size="18" stroke-width="1.5" />
+              Hoy
+            </button>
+          </div>
           <p class="fecha-seleccionada">Fecha seleccionada: {{ fechaLarga }}</p>
         </div>
 
@@ -258,15 +279,14 @@ onMounted(() => {
         <div class="acciones">
           <button type="button" class="secundario" @click="cerrar">Cancelar</button>
           <button
-            type="button"
+            type="submit"
             :disabled="guardando || !servicio || atendidos === null"
-            @click="guardar"
           >
             <IconDeviceFloppy :size="18" stroke-width="1.5" />
             {{ guardando ? 'Guardando...' : 'Guardar' }}
           </button>
         </div>
-      </div>
+      </form>
     </div>
   </Transition>
 </template>
@@ -489,6 +509,22 @@ onMounted(() => {
   gap: 0.35rem;
 }
 
+.campo-dia-fila {
+  display: flex;
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.btn-hoy {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .fecha-seleccionada {
   margin: 0;
   padding-left: 1.9rem; /* alinea con el texto del select, tras el icono */
@@ -499,7 +535,7 @@ onMounted(() => {
 
 .campo-ancho input {
   border: none;
-  padding-left: 0;
+  padding-left: 0.75rem;
   background: transparent;
 }
 

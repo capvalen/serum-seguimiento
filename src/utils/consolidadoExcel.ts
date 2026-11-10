@@ -203,11 +203,13 @@ function construirFilas({
   }
 
   // --- Encabezado del documento ---
-  // 1) Año (dato del establecimiento).
+  // 1) Año (dato del establecimiento), entre comillas y en negrita.
+  const anioTexto = establecimiento.anio.trim()
   filas.push(
     celdasSpan({
-      value: establecimiento.anio,
+      value: anioTexto ? `"${anioTexto}"` : '',
       columnSpan: MAX_COLS,
+      fontWeight: 'bold',
       fontSize: 12,
       align: 'center',
       textColor: TEXTO,
@@ -266,8 +268,16 @@ function construirFilas({
 
     filas.push(filaDias, filaSub)
 
-    // --- Una fila por servicio ---
-    for (const clave of claves) {
+    // --- Solo los servicios que tienen algún valor en esta semana ---
+    // Evita filas completamente vacías (todas sus celdas de la semana en 0).
+    const clavesSemana = claves.filter((clave) =>
+      semana.some(
+        (d) => (porDia.get(`${anio}-${pad(mes)}-${pad(d)}`)?.get(clave) ?? 0) > 0,
+      ),
+    )
+
+    // --- Una fila por servicio con datos en la semana ---
+    for (const clave of clavesSemana) {
       const fila: Row = [etiqueta(etiquetas.get(clave)!.abrev)]
       let semanalATC = 0
 
