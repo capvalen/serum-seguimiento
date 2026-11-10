@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   IconArrowLeft,
+  IconChevronLeft,
   IconChevronRight,
   IconUsers,
   IconMessageCircleSearch,
@@ -78,6 +79,22 @@ function alGuardar(nuevaFecha: string) {
   else router.push(`/atenciones/${nuevaFecha}`)
 }
 
+/**
+ * Navega a la fecha actual +/- `dias`.
+ * Usa `Date` para que cruce correctamente de mes y año.
+ */
+function cambiarDia(dias: number) {
+  const { anio, mes, dia } = partes.value
+  if (!anio || !mes || !dia) return
+
+  const nueva = new Date(anio, mes - 1, dia + dias)
+  const y = nueva.getFullYear()
+  const m = String(nueva.getMonth() + 1).padStart(2, '0')
+  const d = String(nueva.getDate()).padStart(2, '0')
+
+  router.push(`/atenciones/${y}-${m}-${d}`)
+}
+
 onMounted(() => {
   if (!usuario.correo) return
   cargar()
@@ -96,6 +113,27 @@ watch(fecha, cargar)
         <div class="titulo">
           <span class="etiqueta">Detalle de:</span>
           <h1>{{ titulo }}</h1>
+
+          <div class="navegacion-dias">
+            <button
+              type="button"
+              class="btn-dia"
+              title="Día anterior"
+              @click="cambiarDia(-1)"
+            >
+              <IconChevronLeft :size="16" stroke-width="1.5" />
+              Día anterior
+            </button>
+            <button
+              type="button"
+              class="btn-dia"
+              title="Próximo día"
+              @click="cambiarDia(1)"
+            >
+              Próximo día
+              <IconChevronRight :size="16" stroke-width="1.5" />
+            </button>
+          </div>
         </div>
       </header>
       <p v-if="cargando" class="estado">Cargando...</p>
@@ -178,6 +216,7 @@ watch(fecha, cargar)
   flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
+  width: 100%;
 }
 
 .etiqueta {
@@ -190,6 +229,39 @@ watch(fecha, cargar)
   margin: 0;
   font-size: 1.4rem;
   text-align: left;
+}
+
+/* Navegación entre días (botones blancos, uno a cada extremo) */
+.navegacion-dias {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.4rem;
+}
+
+.btn-dia {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--med-text);
+  background: var(--med-surface);
+  border: 1.5px solid var(--med-border);
+  border-radius: var(--med-radius-sm);
+  transition: background var(--med-transition), border-color var(--med-transition),
+    color var(--med-transition);
+}
+
+.btn-dia:hover {
+  transform: none;
+  box-shadow: none;
+  color: var(--med-blue-700);
+  background: var(--med-blue-50);
+  border-color: var(--med-blue-400);
 }
 
 .volver {

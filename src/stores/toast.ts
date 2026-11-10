@@ -15,14 +15,27 @@ export const useToastStore = defineStore('toast', () => {
 
   let timer: ReturnType<typeof setTimeout> | undefined
 
-  function mostrar(msg: string, t: ToastTipo = 'exito') {
+  /** Duración por defecto del toast (3 s). */
+  const DURACION_DEFECTO = 3000
+
+  /**
+   * Muestra una notificación.
+   * @param msg     Texto a mostrar.
+   * @param t       Tipo ('exito' | 'error').
+   * @param duracionMs  Tiempo visible en ms. Por defecto 3000.
+   */
+  function mostrar(
+    msg: string,
+    t: ToastTipo = 'exito',
+    duracionMs = DURACION_DEFECTO,
+  ) {
     mensaje.value = msg
     tipo.value = t
     visible.value = true
     clearTimeout(timer)
     timer = setTimeout(() => {
       visible.value = false
-    }, 3000)
+    }, duracionMs)
   }
 
   function ocultar() {

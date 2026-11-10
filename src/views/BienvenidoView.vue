@@ -71,14 +71,19 @@ const serviciosDelMes = computed(() => {
   const catalogo = new Map(
     usuario.servicios.map((s) => [s.servicio.toLowerCase(), s]),
   )
+  const capitalizar = (texto: string) =>
+    texto.charAt(0).toUpperCase() + texto.slice(1)
+
   return Object.entries(servicios)
-    .map(([servicio, total]) => ({
-      servicio,
-      total,
-      etiqueta:
-        catalogo.get(servicio.toLowerCase())?.servicio ??
-        servicio.charAt(0).toUpperCase() + servicio.slice(1),
-    }))
+    .map(([servicio, total]) => {
+      // Se toma el nombre del catálogo (si existe) con la primera letra en mayúscula.
+      const delCatalogo = catalogo.get(servicio.toLowerCase())?.servicio
+      return {
+        servicio,
+        total,
+        etiqueta: capitalizar(delCatalogo || servicio),
+      }
+    })
     .sort((a, b) => b.total - a.total || a.etiqueta.localeCompare(b.etiqueta))
 })
 
@@ -149,6 +154,8 @@ async function exportar() {
       <IconVaccine :size="40" class="logo" stroke-width="1.5" />
       <h1>Bienvenido</h1>
       <p v-if="usuario.correo" class="correo">{{ usuario.correo }}</p>
+
+      <img src="/joy.webp" alt="Joy" class="joy" />
 
       <p class="instruccion">Elija la fecha para alimentar información</p>
 
@@ -293,6 +300,17 @@ h1 {
   margin: 0;
   color: var(--med-text-muted);
   font-size: 0.9rem;
+}
+
+.joy {
+  display: block;
+  width: 130px;
+  height: 130px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid var(--med-surface);
+  box-shadow: var(--med-shadow);
+  margin: 0.25rem 0;
 }
 
 .instruccion {

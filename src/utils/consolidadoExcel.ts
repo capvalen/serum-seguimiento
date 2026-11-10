@@ -169,11 +169,14 @@ function construirFilas({
 
       if (!etiquetas.has(clave)) {
         const cat = porServicio.get(clave)
-        const abreviada = Boolean(cat?.abreviatura)
+        const abreviatura = (cat?.abreviatura ?? '').trim()
+        const nombreServicio = capitalizar(cat?.servicio || servicio)
         etiquetas.set(clave, {
-          abrev: cat?.abreviatura || cat?.servicio || capitalizar(servicio),
-          nombre: cat?.servicio || capitalizar(servicio),
-          tieneAbrev: abreviada,
+          // Con abreviatura se muestra en MAYÚSCULAS; sin ella, el nombre
+          // con la primera letra en mayúscula.
+          abrev: abreviatura ? abreviatura.toUpperCase() : nombreServicio,
+          nombre: nombreServicio,
+          tieneAbrev: Boolean(abreviatura),
         })
       }
     }

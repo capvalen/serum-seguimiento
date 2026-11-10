@@ -10,6 +10,7 @@ import {
   IconBuildingHospital,
   IconShieldCheck,
   IconDeviceFloppy,
+  IconStethoscope,
 } from '@tabler/icons-vue'
 import {
   useUsuarioStore,
@@ -21,6 +22,9 @@ import ModalServicio from '@/components/ModalServicio.vue'
 
 const usuario = useUsuarioStore()
 const toast = useToastStore()
+
+/** Pestaña activa. */
+const pestana = ref<'establecimiento' | 'servicios'>('establecimiento')
 
 /** null = modal cerrado; { servicio } = modal de edición. */
 const modal = ref<{ servicio?: Servicio } | null>(null)
@@ -122,92 +126,117 @@ async function guardarEstablecimiento() {
         </div>
       </header>
 
-      <div class="seccion-head">
-        <p class="subtitulo">Establecimiento</p>
-      </div>
-
-      <label class="campo">
-        <IconCalendar :size="18" stroke-width="1.5" />
-        <input v-model="form.anio" type="text" placeholder="Año" />
-      </label>
-
-      <label class="campo">
-        <IconBuildingHospital :size="18" stroke-width="1.5" />
-        <input
-          v-model="form.centroSalud"
-          type="text"
-          placeholder="Centro de salud"
-        />
-      </label>
-
-      <div class="campo-tipo">
-        <span class="campo-etiqueta">
-          <IconShieldCheck :size="18" stroke-width="1.5" />
-          Tipo Serum
-        </span>
-        <div class="switch" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="form.tipoSerum === 'remunerada'"
-            :class="{ activo: form.tipoSerum === 'remunerada' }"
-            @click="form.tipoSerum = 'remunerada'"
-          >
-            Remunerada
-          </button>
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="form.tipoSerum === 'equivalente'"
-            :class="{ activo: form.tipoSerum === 'equivalente' }"
-            @click="form.tipoSerum = 'equivalente'"
-          >
-            Equivalente
-          </button>
-        </div>
-      </div>
-
-      <button
-        type="button"
-        class="btn-guardar"
-        :disabled="guardandoEst"
-        @click="guardarEstablecimiento"
-      >
-        <IconDeviceFloppy :size="18" stroke-width="1.5" />
-        {{ guardandoEst ? 'Guardando...' : 'Guardar establecimiento' }}
-      </button>
-
-      <div class="seccion-head">
-        <p class="subtitulo">Servicios</p>
-        <button type="button" class="btn-agregar" @click="abrirCrear">
-          <IconPlus :size="18" stroke-width="1.5" />
-          Agregar
+      <div class="tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="pestana === 'establecimiento'"
+          :class="{ activo: pestana === 'establecimiento' }"
+          @click="pestana = 'establecimiento'"
+        >
+          <IconBuildingHospital :size="18" stroke-width="1.5" />
+          Establecimiento
+        </button>
+        <button
+          type="button"
+          role="tab"
+          :aria-selected="pestana === 'servicios'"
+          :class="{ activo: pestana === 'servicios' }"
+          @click="pestana = 'servicios'"
+        >
+          <IconStethoscope :size="18" stroke-width="1.5" />
+          Servicios
         </button>
       </div>
 
-      <ul v-if="lista.length" class="lista">
-        <li v-for="s in lista" :key="s.servicio">
-          <div class="info">
-            <span class="nombre">{{ s.servicio }}</span>
-            <span v-if="s.abreviatura" class="abrev">{{ s.abreviatura }}</span>
-          </div>
-          <div class="ops">
-            <button type="button" class="op" title="Editar" @click="abrirEditar(s)">
-              <IconPencil :size="18" stroke-width="1.5" />
+      <!-- ---------------------------- Establecimiento --------------------------- -->
+      <template v-if="pestana === 'establecimiento'">
+        <label class="campo">
+          <IconCalendar :size="18" stroke-width="1.5" />
+          <input v-model="form.anio" type="text" placeholder="Año" />
+        </label>
+
+        <label class="campo">
+          <IconBuildingHospital :size="18" stroke-width="1.5" />
+          <input
+            v-model="form.centroSalud"
+            type="text"
+            placeholder="Centro de salud"
+          />
+        </label>
+
+        <div class="campo-tipo">
+          <span class="campo-etiqueta">
+            <IconShieldCheck :size="18" stroke-width="1.5" />
+            Tipo Serum
+          </span>
+          <div class="switch" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              :aria-selected="form.tipoSerum === 'remunerada'"
+              :class="{ activo: form.tipoSerum === 'remunerada' }"
+              @click="form.tipoSerum = 'remunerada'"
+            >
+              Remunerada
             </button>
             <button
               type="button"
-              class="op peligro"
-              title="Eliminar"
-              @click="porEliminar = s"
+              role="tab"
+              :aria-selected="form.tipoSerum === 'equivalente'"
+              :class="{ activo: form.tipoSerum === 'equivalente' }"
+              @click="form.tipoSerum = 'equivalente'"
             >
-              <IconTrash :size="18" stroke-width="1.5" />
+              Equivalente
             </button>
           </div>
-        </li>
-      </ul>
+        </div>
 
-      <p v-else class="vacio">Aún no hay servicios registrados.</p>
+        <button
+          type="button"
+          class="btn-guardar"
+          :disabled="guardandoEst"
+          @click="guardarEstablecimiento"
+        >
+          <IconDeviceFloppy :size="18" stroke-width="1.5" />
+          {{ guardandoEst ? 'Guardando...' : 'Guardar establecimiento' }}
+        </button>
+      </template>
+
+      <!-- ------------------------------- Servicios ------------------------------ -->
+      <template v-else>
+        <div class="seccion-head">
+          <p class="subtitulo">Servicios</p>
+          <button type="button" class="btn-agregar" @click="abrirCrear">
+            <IconPlus :size="18" stroke-width="1.5" />
+            Agregar
+          </button>
+        </div>
+
+        <ul v-if="lista.length" class="lista">
+          <li v-for="s in lista" :key="s.servicio">
+            <div class="info">
+              <span class="nombre">{{ s.servicio }}</span>
+              <span v-if="s.abreviatura" class="abrev">{{ s.abreviatura }}</span>
+            </div>
+            <div class="ops">
+              <button type="button" class="op" title="Editar" @click="abrirEditar(s)">
+                <IconPencil :size="18" stroke-width="1.5" />
+              </button>
+              <button
+                type="button"
+                class="op peligro"
+                title="Eliminar"
+                @click="porEliminar = s"
+              >
+                <IconTrash :size="18" stroke-width="1.5" />
+              </button>
+            </div>
+          </li>
+        </ul>
+
+        <p v-else class="vacio">Aún no hay servicios registrados.</p>
+      </template>
     </div>
 
     <ModalServicio
@@ -288,6 +317,57 @@ async function guardarEstablecimiento() {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+/* Pestañas (modelo tabs): Establecimiento | Servicios */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  width: 100%;
+  border-bottom: 2px solid var(--med-border);
+}
+
+.tabs button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  /* Se monta sobre la línea inferior del contenedor. */
+  margin-bottom: -2px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--med-text-muted);
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--med-radius-sm) var(--med-radius-sm) 0 0;
+  box-shadow: none;
+  transition: color var(--med-transition), background var(--med-transition),
+    border-color var(--med-transition);
+}
+
+.tabs button:hover:not(.activo) {
+  transform: none;
+  box-shadow: none;
+  color: var(--med-blue-600);
+  background: var(--med-blue-50);
+}
+
+.tabs button.activo {
+  color: var(--med-blue-700);
+  background: var(--med-surface);
+  border-color: var(--med-border);
+  /* "Rompe" la línea inferior para conectarse con el contenido. */
+  border-bottom-color: var(--med-surface);
+  /* Acento superior de la pestaña activa. */
+  box-shadow: inset 0 3px 0 var(--med-blue-600);
+}
+
+.tabs button.activo:hover {
+  transform: none;
+  box-shadow: inset 0 3px 0 var(--med-blue-600);
 }
 
 .subtitulo {
