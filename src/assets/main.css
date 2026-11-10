@@ -1,0 +1,160 @@
+/* ==========================================================================
+   Tema global — Azul médico
+   Paleta basada en azul clínico / sanitario.
+   ========================================================================== */
+
+:root {
+  /* Azules principales */
+  --med-blue-900: #0a2a4a;
+  --med-blue-700: #0d47a1;
+  --med-blue-600: #1565c0;
+  --med-blue-500: #1e88e5;
+  --med-blue-400: #42a5f5;
+  --med-blue-100: #e3f2fd;
+  --med-blue-50: #f5faff;
+
+  /* Colores funcionales */
+  --med-bg: var(--med-blue-50);
+  --med-surface: #ffffff;
+  --med-border: #cfe4f7;
+  --med-text: #0a2a4a;
+  --med-text-muted: #4a6b8a;
+
+  /* Estado */
+  --med-success: #2e7d32;
+  --med-error: #c62828;
+
+  /* Sombras */
+  --med-shadow: 0 4px 16px rgba(13, 71, 161, 0.12);
+  --med-shadow-hover: 0 6px 22px rgba(13, 71, 161, 0.22);
+
+  /* Radios y transiciones */
+  --med-radius: 12px;
+  --med-radius-sm: 8px;
+  --med-transition: 0.2s ease;
+
+  /* Altura reservada para el menú inferior */
+  --menu-alto: 68px;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--med-text);
+  background:
+    radial-gradient(1200px 600px at 50% -10%, var(--med-blue-100), transparent),
+    linear-gradient(180deg, var(--med-blue-50), #eaf4ff);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--med-blue-900);
+  font-weight: 700;
+}
+
+h1 {
+  letter-spacing: -0.02em;
+}
+
+/* Foco accesible azul */
+:focus-visible {
+  outline: 3px solid var(--med-blue-400);
+  outline-offset: 2px;
+}
+
+/* Controles base */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-size: 1rem;
+  color: var(--med-text);
+  background: var(--med-surface);
+  border: 1.5px solid var(--med-border);
+  border-radius: var(--med-radius-sm);
+  transition: border-color var(--med-transition), box-shadow var(--med-transition);
+}
+
+input::placeholder {
+  color: var(--med-text-muted);
+}
+
+/* Los nombres de meses/servicios se muestran con la inicial en mayúscula */
+select {
+  text-transform: capitalize;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--med-blue-500);
+  box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.15);
+  outline: none;
+}
+
+button {
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--med-blue-600), var(--med-blue-500));
+  border: none;
+  border-radius: var(--med-radius-sm);
+  cursor: pointer;
+  transition: transform var(--med-transition), box-shadow var(--med-transition),
+    filter var(--med-transition);
+}
+
+button:hover:not(:disabled) {
+  box-shadow: var(--med-shadow-hover);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+a {
+  color: var(--med-blue-600);
+}
+
+a:hover {
+  color: var(--med-blue-700);
+}
+
+/* Tarjeta reutilizable */
+.med-card {
+  background: var(--med-surface);
+  border: 1px solid var(--med-border);
+  border-radius: var(--med-radius);
+  box-shadow: var(--med-shadow);
+  padding: 2rem;
+}

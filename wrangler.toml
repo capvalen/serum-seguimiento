@@ -1,0 +1,11 @@
+name = "serum-seguimiento"
+compatibility_date = "2026-01-01"
+main = "worker/index.ts"
+
+[assets]
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[kv_namespaces]]
+binding = "kv_serums"
+id = "2e06600310bb427c8640e010fc445e1f"
